@@ -86,6 +86,12 @@ export class RestRecognizer
           text: this.recognitionConfiguration.text,
           export: this.recognitionConfiguration.export
         }
+      case "local":
+        return {
+          lang: this.recognitionConfiguration.lang,
+          text: this.recognitionConfiguration.text,
+          export: this.recognitionConfiguration.export
+        }
       default:
         throw new Error(`get postConfig error Recognition type unkow "${ this.recognitionConfiguration.type }"`)
         break
@@ -243,6 +249,8 @@ export class RestRecognizer
         case "TEXT":
           mimeTypes = this.recognitionConfiguration.text.mimeTypes
           break
+        case 'local':
+          mimeTypes = []
         default:
           throw new Error(`Recognition type "${ this.recognitionConfiguration.type }" is unknown.\n Possible types are:\n -DIAGRAM\n -MATH\n -Raw Content\n -TEXT`)
           break

@@ -30,10 +30,12 @@ export class RestBehaviors implements IBehaviors
   undoRedoManager: UndoRedoManager
   styleManager: StyleManager
   intention: Intention
+  internalEvent: InternalEvent
 
-  constructor(options: PartialDeep<TBehaviorOptions>)
+  constructor(options: PartialDeep<TBehaviorOptions>, internalEvent: InternalEvent)
   {
     this.#logger.info("constructor", { options })
+    this.internalEvent = internalEvent
     this.#configuration = new Configuration(options?.configuration)
     this.styleManager = new StyleManager(options?.penStyle, options?.theme)
 
@@ -43,7 +45,7 @@ export class RestBehaviors implements IBehaviors
 
     this.intention = Intention.Write
     this.#model = new Model()
-    this.undoRedoManager = new UndoRedoManager(this.#configuration["undo-redo"], this.model)
+    this.undoRedoManager = new UndoRedoManager(this.#configuration["undo-redo"], this.model, internalEvent)
   }
 
   protected onPointerDown(evt: PointerEvent, point: TPointer): void
@@ -106,11 +108,6 @@ export class RestBehaviors implements IBehaviors
         this.#logger.warn("#onPointerUp", `onPointerUp intention unknow: "${ this.intention }"`)
         break
     }
-  }
-
-  get internalEvent(): InternalEvent
-  {
-    return InternalEvent.getInstance()
   }
 
   get model(): Model

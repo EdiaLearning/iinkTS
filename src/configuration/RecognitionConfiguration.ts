@@ -18,7 +18,7 @@ import {
 /**
  * @group Configuration
  */
-export type TRecognitionType = "TEXT" | "MATH" | "DIAGRAM" | "Raw Content"
+export type TRecognitionType = "TEXT" | "MATH" | "DIAGRAM" | "Raw Content" | "local"
 
 /**
  * @group Configuration

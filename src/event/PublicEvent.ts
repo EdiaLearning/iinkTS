@@ -8,22 +8,12 @@ import { TUndoRedoContext } from "../undo-redo"
  */
 export class PublicEvent extends EventTarget
 {
-  static #instance: PublicEvent
   #element?: HTMLElement
   #logger = LoggerManager.getLogger(LoggerClass.PUBLIC_EVENT)
 
-  private constructor()
+  constructor()
   {
     super()
-  }
-
-  public static getInstance(): PublicEvent
-  {
-    if (!PublicEvent.#instance) {
-      PublicEvent.#instance = new PublicEvent()
-    }
-
-    return PublicEvent.#instance
   }
 
   setElement(el: HTMLElement)

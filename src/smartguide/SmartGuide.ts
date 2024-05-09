@@ -29,10 +29,12 @@ export class SmartGuide
   lastWord?: TJIIXWord
   wordToChange?: TJIIXWord
   #logger = LoggerManager.getLogger(LoggerClass.SMARTGUIDE)
+  internalEvent: InternalEvent
 
-  constructor()
+  constructor(internalEvent : InternalEvent)
   {
     this.#logger.info("constructor")
+    this.internalEvent = internalEvent
     this.uuid = createUUID()
     this.margin = {
       bottom: 0,
@@ -51,11 +53,6 @@ export class SmartGuide
     this.#createConvertElement()
     this.#createCopyElement()
     this.#createDeleteElement()
-  }
-
-  get internalEvent(): InternalEvent
-  {
-    return InternalEvent.getInstance()
   }
 
   #createRootElement(): void

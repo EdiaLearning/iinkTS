@@ -32,6 +32,8 @@ export class Editor
   #behaviors!: IBehaviors
   #smartGuide?: SmartGuide
   #initializationDeferred: DeferredPromise<void>
+  internalEvent: InternalEvent
+  publicEvent: PublicEvent
 
   #loggerConfiguration!: TLoggerConfiguration
 
@@ -44,6 +46,8 @@ export class Editor
     this.wrapperHTML = wrapperHTML as HTMLEditorElement
     this.wrapperHTML.classList.add(globalClassCss)
     this.wrapperHTML.classList.add("draw")
+    this.publicEvent = new PublicEvent()
+    this.internalEvent = new InternalEvent()
     this.events.setElement(this.wrapperHTML)
 
     const styleElement = document.createElement("style")
@@ -124,12 +128,12 @@ export class Editor
 
   get events(): PublicEvent
   {
-    return PublicEvent.getInstance()
+    return this.publicEvent
   }
 
   get internalEvents(): InternalEvent
   {
-    return InternalEvent.getInstance()
+    return this.internalEvent
   }
 
   get context(): TUndoRedoContext
@@ -200,9 +204,9 @@ export class Editor
     }
     let defaultBehaviors: IBehaviors
     if (options.configuration.server?.protocol === "REST") {
-      defaultBehaviors = new RestBehaviors(options)
+      defaultBehaviors = new RestBehaviors(options, this.internalEvents)
     } else {
-      defaultBehaviors = new WSBehaviors(options)
+      defaultBehaviors = new WSBehaviors(options, this.internalEvents)
     }
     this.#behaviors = Object.assign(defaultBehaviors, options.behaviors)
     this.logger.debug("instantiateBehaviors", this.#behaviors)
@@ -241,7 +245,7 @@ export class Editor
     this.#smartGuide?.destroy()
     this.logger.info("initializeSmartGuide", { smartGuide: this.configuration.rendering.smartGuide })
     if (this.configuration.rendering.smartGuide.enable) {
-      this.#smartGuide = new SmartGuide()
+      this.#smartGuide = new SmartGuide(this.internalEvents)
       let margin: TMarginConfiguration
       switch (this.configuration.recognition.type) {
         case "TEXT":

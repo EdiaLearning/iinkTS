@@ -14,17 +14,14 @@ export class UndoRedoManager
 
   context: UndoRedoContext
   configuration: TUndoRedoConfiguration
+  internalEvent: InternalEvent
 
-  constructor(configuration: TUndoRedoConfiguration, model: IModel)
+  constructor(configuration: TUndoRedoConfiguration, model: IModel, internalEvent: InternalEvent)
   {
     this.#logger.info("constructor", { configuration, model })
+    this.internalEvent = internalEvent
     this.configuration = configuration
     this.context = new UndoRedoContext(model)
-  }
-
-  get internalEvent(): InternalEvent
-  {
-    return InternalEvent.getInstance()
   }
 
   private updateCanUndoRedo(): void

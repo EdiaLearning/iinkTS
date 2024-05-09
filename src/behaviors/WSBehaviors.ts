@@ -29,26 +29,23 @@ export class WSBehaviors implements IBehaviors
   undoRedoManager: UndoRedoManager
   styleManager: StyleManager
   intention: Intention
+  internalEvent: InternalEvent
 
 
-  constructor(options: PartialDeep<TBehaviorOptions>)
+  constructor(options: PartialDeep<TBehaviorOptions>, internalEvent: InternalEvent)
   {
     this.#logger.info("constructor", { options })
+    this.internalEvent = internalEvent
     this.#configuration = new Configuration(options?.configuration)
     this.styleManager = new StyleManager(options?.penStyle, options?.theme)
 
     this.grabber = new PointerEventGrabber(this.#configuration.grabber)
     this.renderer = new WSSVGRenderer(this.#configuration.rendering)
-    this.recognizer = new WSRecognizer(this.#configuration.server, this.#configuration.recognition)
+    this.recognizer = new WSRecognizer(this.#configuration.server, this.#configuration.recognition, internalEvent)
 
     this.intention = Intention.Write
     this.#model = new Model()
-    this.undoRedoManager = new UndoRedoManager(this.#configuration["undo-redo"], this.model)
-  }
-
-  get internalEvent(): InternalEvent
-  {
-    return InternalEvent.getInstance()
+    this.undoRedoManager = new UndoRedoManager(this.#configuration["undo-redo"], this.model, internalEvent)
   }
 
   get model(): Model

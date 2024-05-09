@@ -10,24 +10,14 @@ import { TUndoRedoContext } from "../undo-redo"
  */
 export class InternalEvent extends EventTarget
 {
-  static #instance: InternalEvent
   #abortController: AbortController
   #logger = LoggerManager.getLogger(LoggerClass.INTERNAL_EVENT)
 
-  private constructor()
+  constructor()
   {
     super()
     this.#logger.info("constructor")
     this.#abortController = new AbortController()
-  }
-
-  public static getInstance(): InternalEvent
-  {
-    if (!InternalEvent.#instance) {
-      InternalEvent.#instance = new InternalEvent()
-    }
-
-    return InternalEvent.#instance
   }
 
   removeAllListeners(): void

@@ -71,9 +71,11 @@ export class WSRecognizer
   protected waitForIdleDeferred?: DeferredPromise<void>
 
   url: string
+  internalEvent: InternalEvent
 
-  constructor(serverConfig: TServerConfiguration, recognitionConfig: TRecognitionConfiguration)
+  constructor(serverConfig: TServerConfiguration, recognitionConfig: TRecognitionConfiguration, internalEvent: InternalEvent)
   {
+    this.internalEvent = internalEvent
     this.serverConfiguration = serverConfig
     this.recognitionConfiguration = recognitionConfig
     const scheme = (this.serverConfiguration.scheme === "https") ? "wss" : "ws"
@@ -91,11 +93,6 @@ export class WSRecognizer
       default:
         throw new Error(`Unauthorized recognition type: "${ this.recognitionConfiguration.type }"`)
     }
-  }
-
-  get internalEvent(): InternalEvent
-  {
-    return InternalEvent.getInstance()
   }
 
   protected infinitePing(): void
