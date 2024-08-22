@@ -2,7 +2,7 @@
 /**
  * @group Configuration
  */
-export type TProtocol = "WEBSOCKET" | "REST"
+export type TProtocol = "WEBSOCKET" | "REST" | "LOCAL"
 
 /**
  * @group Configuration

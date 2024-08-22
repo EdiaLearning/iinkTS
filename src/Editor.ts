@@ -1,5 +1,5 @@
 import style from "./iink.css"
-import { IBehaviors, RestBehaviors, TBehaviorOptions, WSBehaviors } from "./behaviors"
+import { IBehaviors, RestBehaviors, LocalBehaviors, TBehaviorOptions, WSBehaviors } from "./behaviors"
 import { SmartGuide } from "./smartguide"
 import { DeferredPromise, PartialDeep, mergeDeep } from "./utils"
 import { LoggerManager } from "./logger"
@@ -203,7 +203,9 @@ export class Editor
       this.#behaviors.destroy()
     }
     let defaultBehaviors: IBehaviors
-    if (options.configuration.server?.protocol === "REST") {
+    if (options.configuration.server?.protocol === "LOCAL") {
+      defaultBehaviors = new LocalBehaviors(options, this.internalEvents)
+    } else if (options.configuration.server?.protocol === "REST") {
       defaultBehaviors = new RestBehaviors(options, this.internalEvents)
     } else {
       defaultBehaviors = new WSBehaviors(options, this.internalEvents)
