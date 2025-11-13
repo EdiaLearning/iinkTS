@@ -13,6 +13,7 @@ import { CanvasRendererText } from "./CanvasRendererText"
 export class CanvasRenderer
 {
   #logger = LoggerManager.getLogger(LoggerClass.RENDERER)
+  #transform: {x: number, y: number, zoom: number}
   configuration: TRenderingConfiguration
   strokeRenderer: CanvasRendererStroke
   shapeRenderer: CanvasRendererShape
@@ -32,6 +33,7 @@ export class CanvasRenderer
     this.strokeRenderer = new CanvasRendererStroke()
     this.shapeRenderer = new CanvasRendererShape()
     this.textRenderer = new CanvasRendererText()
+    this.#transform = {x: 0, y: 0, zoom: 1}
   }
 
   protected createCanvas(type: string): HTMLCanvasElement
@@ -42,6 +44,14 @@ export class CanvasRenderer
     canvas.classList.add(type)
     canvas.classList.add("ms-canvas")
     return canvas
+  }
+
+  protected clearCanvas(context: CanvasRenderingContext2D): void
+  {
+    const transform = context.getTransform()
+    context.setTransform(1, 0, 0, 1, 0, 0)
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height)
+    context.setTransform(transform)
   }
 
   protected resizeContent(): void
@@ -55,10 +65,10 @@ export class CanvasRenderer
       const height = Math.max(this.configuration.minHeight, domElement.clientHeight)
       canvas.width = width * pixelRatio
       canvas.height = height * pixelRatio
-      canvas.getContext("2d")?.scale(pixelRatio, pixelRatio)
       canvas.style.width = `${ width }px`
       canvas.style.height = `${ height }px`
     })
+    this.applyTransform(this.#transform)
   }
 
   protected drawSymbol(context2D: CanvasRenderingContext2D, symbol: TSymbol)
@@ -101,15 +111,15 @@ export class CanvasRenderer
   drawModel(model: IModel): void
   {
     this.#logger.info("drawModel", { model })
-    this.context.renderingCanvasContext?.clearRect(0, 0, this.context.renderingCanvas.width, this.context.renderingCanvas.height)
+    this.clearCanvas(this.context.renderingCanvasContext)
     model.symbols.forEach(symbol => this.drawSymbol(this.context.renderingCanvasContext, symbol))
-    this.context.capturingCanvasContext.clearRect(0, 0, this.context.capturingCanvas.width, this.context.capturingCanvas.height)
+    this.clearCanvas(this.context.capturingCanvasContext)
   }
 
   drawPendingStroke(stroke: Stroke | undefined): void
   {
     this.#logger.info("drawPendingStroke", { stroke })
-    this.context.capturingCanvasContext.clearRect(0, 0, this.context.capturingCanvas.width, this.context.capturingCanvas.height)
+    this.clearCanvas(this.context.capturingCanvasContext)
     if (stroke && stroke?.pointerType !== "eraser") {
       this.strokeRenderer.draw(this.context.capturingCanvasContext, stroke)
     }
@@ -120,6 +130,17 @@ export class CanvasRenderer
     this.#logger.info("resize", { model })
     this.resizeContent()
     this.drawModel(model)
+  }
+
+  applyTransform(transform: {x: number, y: number, zoom: number}): void
+  {
+    this.#transform = transform
+    const x = transform.x * window.devicePixelRatio
+    const y = transform.y * window.devicePixelRatio
+    const zoom = transform.zoom * window.devicePixelRatio;
+    [this.context.renderingCanvasContext, this.context.capturingCanvasContext].forEach(context => {
+      context.setTransform(zoom, 0, 0, zoom, x, y)
+    })
   }
 
   destroy(): void

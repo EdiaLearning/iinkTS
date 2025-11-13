@@ -52,6 +52,8 @@ export interface IBehaviors
   export(mimeTypes?: string[]): Promise<IModel>
   convert(conversionState?: TConverstionState, requestedMimeTypes?: string[]): Promise<IModel>
   resize(height: number, width: number): Promise<IModel>
+  applyTransform?(transform: {x: number, y: number, zoom: number}): void
+  cancelCurrentStroke?(): void
   undo(): Promise<IModel>
   redo(): Promise<IModel>
 
