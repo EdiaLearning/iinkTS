@@ -194,6 +194,12 @@ export class Model implements IModel
     this.#logger.debug("endCurrentStroke", this.currentSymbol)
   }
 
+  resetCurrentStroke(): void
+  {
+    this.#logger.info("resetCurrentStroke")
+    this.currentSymbol = undefined
+  }
+
   updatePositionSent(position: number = this.symbols.length): void
   {
     this.#logger.info("updatePositionSent", { position })

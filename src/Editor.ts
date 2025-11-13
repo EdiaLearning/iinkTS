@@ -395,6 +395,16 @@ export class Editor
     return this.model
   }
 
+  applyTransform(transform: {x: number, y: number, zoom: number}): void
+  {
+    this.behaviors.applyTransform?.(transform)
+  }
+
+  cancelCurrentStroke(): void
+  {
+    this.behaviors.cancelCurrentStroke?.()
+  }
+
   async export(mimeTypes?: string[]): Promise<IModel>
   {
     this.logger.info("export", { mimeTypes })

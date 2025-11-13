@@ -20,6 +20,7 @@ export class LocalBehaviors implements IBehaviors
   #logger = LoggerManager.getLogger(LoggerClass.BEHAVIORS)
   #configuration: TConfiguration
   #model: Model
+  #transform: {x: number, y: number, zoom: number}
 
   grabber: PointerEventGrabber
   renderer: CanvasRenderer
@@ -41,11 +42,13 @@ export class LocalBehaviors implements IBehaviors
     this.intention = Intention.Write
     this.#model = new Model()
     this.undoRedoManager = new UndoRedoManager(this.#configuration["undo-redo"], this.model, internalEvent)
+    this.#transform = {x: 0, y: 0, zoom: 1}
   }
 
   protected onPointerDown(evt: PointerEvent, point: TPointer): void
   {
     this.#logger.info("onPointerDown", { intention: this.intention, evt, point })
+    point = this.#untransformPoint(point)
     const { pointerType } = evt
     const style: TPenStyle = Object.assign({}, this.theme?.ink, this.currentPenStyle)
     switch (this.intention) {
@@ -68,6 +71,7 @@ export class LocalBehaviors implements IBehaviors
   protected onPointerMove(_evt: PointerEvent, point: TPointer): void
   {
     this.#logger.info("onPointerMove", { intention: this.intention, point })
+    point = this.#untransformPoint(point)
     switch (this.intention) {
       case Intention.Erase: {
         if (this.model.removeStrokesFromPoint(point).length > 0) {
@@ -88,6 +92,7 @@ export class LocalBehaviors implements IBehaviors
   protected async onPointerUp(_evt: PointerEvent, point: TPointer): Promise<void>
   {
     this.#logger.info("onPointerUp", { intention: this.intention, point })
+    point = this.#untransformPoint(point)
     switch (this.intention) {
       case Intention.Erase:
         this.model.removeStrokesFromPoint(point)
@@ -102,6 +107,15 @@ export class LocalBehaviors implements IBehaviors
       default:
         this.#logger.warn("#onPointerUp", `onPointerUp intention unknow: "${ this.intention }"`)
         break
+    }
+  }
+
+  #untransformPoint(point: TPointer): TPointer
+  {
+    return {
+      ...point,
+      x: (point.x - this.#transform.x) / this.#transform.zoom,
+      y: (point.y - this.#transform.y) / this.#transform.zoom,
     }
   }
 
@@ -178,6 +192,13 @@ export class LocalBehaviors implements IBehaviors
   {
     this.#logger.debug("drawCurrentStroke", { stroke: this.model.currentSymbol })
     this.renderer.drawPendingStroke(this.model.currentSymbol)
+  }
+
+  cancelCurrentStroke(): void
+  {
+    this.#logger.info("cancelCurrentStroke")
+    this.model.resetCurrentStroke()
+    this.renderer.drawModel(this.model)
   }
 
   async updateModelRendering(): Promise<IModel>
@@ -278,6 +299,14 @@ export class LocalBehaviors implements IBehaviors
     this.#logger.debug("resize", { model: this.model })
     this.internalEvent.emitExported(this.model.exports as TExport)
     return this.model
+  }
+
+  applyTransform(transform: {x: number, y: number, zoom: number}): void
+  {
+    this.#logger.info("applyTransform", { transform })
+    this.#transform = transform
+    this.renderer.applyTransform(transform)
+    this.renderer.drawModel(this.model)
   }
 
   async undo(): Promise<IModel>
