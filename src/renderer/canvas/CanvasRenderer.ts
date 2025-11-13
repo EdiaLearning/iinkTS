@@ -48,10 +48,10 @@ export class CanvasRenderer
 
   protected clearCanvas(context: CanvasRenderingContext2D): void
   {
-    context.save()
+    const transform = context.getTransform()
     context.setTransform(1, 0, 0, 1, 0, 0)
     context.clearRect(0, 0, context.canvas.width, context.canvas.height)
-    context.restore()
+    context.setTransform(transform)
   }
 
   protected resizeContent(): void
