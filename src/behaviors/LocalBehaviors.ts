@@ -114,8 +114,8 @@ export class LocalBehaviors implements IBehaviors
   {
     return {
       ...point,
-      x: (point.x - this.#transform.x) / this.#transform.zoom,
-      y: (point.y - this.#transform.y) / this.#transform.zoom,
+      x: Math.round((point.x - this.#transform.x) / this.#transform.zoom),
+      y: Math.round((point.y - this.#transform.y) / this.#transform.zoom),
     }
   }
 
